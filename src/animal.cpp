@@ -8,8 +8,9 @@
 
 void Animal::draw() const
 {
-    std::cout<<"$ ";
+    std::cout<<"? ";
 }
+
 
 void Animal::action()
 {
@@ -18,12 +19,13 @@ void Animal::action()
     int width = world->getWidth();
     int height = world->getHeight();
 
-    std:: pair <int,int> direction = world->getAiDirections()[rand()%8];
-    //std::cout<<direction.first<<" "<<direction.second<<"\n";
-    while(!isInBounds(width, height, positionX + direction.first, positionY + direction.second))
-    {
-        direction = world->getAiDirections()[rand()%8];
-        std::cout<<direction.first<<" "<<direction.second<<"\n";
-    }
-    world->addActionToQueue({positionX, positionY, positionX + direction.first, positionY + direction.second, index});
+    BASIC_ANIMAL_MOVEMENT
+
+    BASIC_ANIMAL_COLLISION
+
+}
+
+collisionAction Animal::collision()
+{
+    return{strength,strength,true,false,true};
 }

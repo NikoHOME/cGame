@@ -1,4 +1,5 @@
 #include "organism.h"
+#include "world.h"
 #include <iostream>
 #include <algorithm>
 
@@ -24,10 +25,16 @@ int Organism::getIndex() const
 {
     return index;
 }
+bool Organism::getIsDeadStatus() const
+{
+    return isDead;
+}
 World *Organism::getWorld() const
 {
     return world;
 }
+
+
 
 
 void Organism::setStrength(int str)
@@ -49,6 +56,10 @@ void Organism::setPositionY(int y)
 void Organism::setIndex(int ind)
 {
     index = ind;
+}
+void Organism::setIsDeadStatus(bool dead)
+{
+    isDead = dead;
 }
 void Organism::setWorld(World *world)
 {

@@ -1,6 +1,9 @@
 #pragma once
 
-class World;
+#include <iostream>
+#include "classes.h"
+#include "action.h"
+
 
 class Organism
 {
@@ -9,6 +12,7 @@ class Organism
         int innitiative;
         int positionX,positionY;
         int index;
+        bool isDead;
         World *world;
     public:
         int getStrength() const;
@@ -16,6 +20,7 @@ class Organism
         int getPositionX() const;
         int getPositionY() const;
         int getIndex() const;
+        bool getIsDeadStatus() const;
         World *getWorld() const;
 
         void setStrength(int str);
@@ -23,6 +28,7 @@ class Organism
         void setPositionX(int x);
         void setPositionY(int y);
         void setIndex(int ind);
+        void setIsDeadStatus(bool dead);
         void setWorld(World *world); 
 
         Organism()
@@ -37,6 +43,8 @@ class Organism
         Organism(const Organism &organism);
 
         virtual void action() = 0;
-        virtual void collision() = 0;
+        virtual collisionAction collision() = 0;
         virtual void draw() const = 0;
+        virtual void printName() const = 0;
+
 };

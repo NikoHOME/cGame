@@ -1,11 +1,5 @@
+#include "classes.h"
 
-bool isInBounds(int width, int height, int x, int y)
-{
-    if(x>=0 && x<width && y>=0 && y<height)
-        return true;
-    return false;
-}
-
-
-
+bool isInBounds(int width, int height, int x, int y);
+void killIfStronger(Organism **thisOrganism, Organism **otherOrganism, int ownStrength, int otherStrength, bool thisCanKill, bool otherCanKill);
 

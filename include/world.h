@@ -4,17 +4,8 @@
 #include "organism.h"
 
 
-class Organism; 
-
-
-struct Action
-{
-    int previousPositionX, previousPositionY;
-    int newPositionX, newPositionY;
-    int organismIndex;
-};
-
-
+#include "classes.h"
+#include "action.h"
 
 class World
 {
@@ -45,5 +36,7 @@ class World
         int getHeight();
 
         std::vector <std::pair <int,int>> &getAiDirections();
+        std::vector <std::vector<Organism*>> &getOrganismDisplay();
+        std::vector <Organism*> &getOrganisms();
         void addActionToQueue(Action action);
 };

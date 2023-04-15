@@ -1,10 +1,12 @@
+#pragma once
 #include "organism.h"
 
 class Plant : public Organism
 {
     using Organism::Organism;
-
-    void action(){};
-    void collision(){};
-    void draw() const;
+    public:
+        void action(){};
+        collisionAction collision();
+        void draw() const;
+        virtual void printName() const { std::cout<<"Plant";}
 };

@@ -51,6 +51,14 @@ std::vector <std::pair <int,int>> &World::getAiDirections()
 {
     return aiDirections;
 }
+std::vector <std::vector<Organism*>> &World::getOrganismDisplay()
+{
+    return organismDisplay;
+}
+std::vector <Organism*> &World::getOrganisms()
+{
+    return organisms;
+}
 
 int World::getHeight()
 {
@@ -71,18 +79,22 @@ void World::nextTurn()
 
     for(auto organism : organisms)
     {
-        organism->action();
+        organism->action();/*
     }
     while(!actions.empty())
     {
         Action action = actions.front();
         actions.pop();
+        
+        Organism *target = organismDisplay[action.newPositionX][action.newPositionY];
+        target->collision(action);*/
+        //organisms[action.organismIndex]->collision(action);
         //std::cout<<action<<"\n";
         //std::cout<<*organismDisplay[action.previousPositionX][action.previousPositionY]<<"\n";
-        std::swap(organismDisplay[action.newPositionX][action.newPositionY],
-                organismDisplay[action.previousPositionX][action.previousPositionY]); 
-        
-        organisms[action.organismIndex]->setPositionX(action.newPositionX);
-        organisms[action.organismIndex]->setPositionY(action.newPositionY);
+        //std::swap(organismDisplay[action.newPositionX][action.newPositionY],
+        //        organismDisplay[action.previousPositionX][action.previousPositionY]); 
+        //
+        //organisms[action.organismIndex]->setPositionX(action.newPositionX);
+        //organisms[action.organismIndex]->setPositionY(action.newPositionY);
     }
 }
