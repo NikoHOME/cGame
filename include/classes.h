@@ -2,6 +2,6 @@
 
 
 struct Action;
-struct collisionAction;
+struct CollisionAction;
 class World;
 class Organism;

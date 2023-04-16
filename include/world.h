@@ -6,6 +6,7 @@
 
 #include "classes.h"
 #include "action.h"
+#include "func.h"
 
 class World
 {
@@ -14,15 +15,18 @@ class World
     std::vector <Organism*> organisms;   
     std::vector <std::pair <int,int>> aiDirections;
     std::queue <Action> actions;
-    int width, height;
+    BoardSize boardSize;
 
     public:
         void draw();
         void nextTurn();
-        World(int wid, int hei) : width(wid), height(hei){
-            organismDisplay.resize(height);
-            for(int i=0; i<width; ++i)
-                organismDisplay[i].resize(width);
+        World(int wid, int hei)
+        {
+            boardSize.width = wid;
+            boardSize.height = hei;
+            organismDisplay.resize(boardSize.height);
+            for(int i=0; i < boardSize.width; ++i)
+                organismDisplay[i].resize(boardSize.width);
             
             for(int i =- 1; i <= 1; ++i)
                 for(int j =- 1; j <= 1; ++j)
@@ -34,6 +38,7 @@ class World
         void pushOrganism(Organism *organism);
         int getWidth();
         int getHeight();
+        BoardSize getBoardSize();
 
         std::vector <std::pair <int,int>> &getAiDirections();
         std::vector <std::vector<Organism*>> &getOrganismDisplay();

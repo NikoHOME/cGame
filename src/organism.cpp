@@ -29,6 +29,10 @@ bool Organism::getIsDeadStatus() const
 {
     return isDead;
 }
+std::string Organism::getName() const
+{
+    return species;
+}
 World *Organism::getWorld() const
 {
     return world;
@@ -65,6 +69,7 @@ void Organism::setWorld(World *world)
 {
     this->world = world;
 }
+
         
 Organism::Organism(const Organism &organism)
 {

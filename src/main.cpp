@@ -15,6 +15,11 @@ int main()
     Turtle animal(3,4);
     Fox fox(3,3);
     Fox fox1(4,3);
+    Wolf wolf(4,4);
+
+    Antilope antilope(0,1);
+    Antilope antilope2(0,0);
+    Antilope antilope3(1,0);
 
     world.pushOrganism(&plant);
     world.pushOrganism(&plant1);
@@ -22,7 +27,11 @@ int main()
     world.pushOrganism(&animal);
     world.pushOrganism(&fox);
     world.pushOrganism(&fox1);
-    
+    world.pushOrganism(&wolf);
+    world.pushOrganism(&antilope);
+    world.pushOrganism(&antilope2);
+    world.pushOrganism(&antilope3);
+
     world.draw();
 
     world.nextTurn();

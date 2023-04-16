@@ -6,7 +6,7 @@ class Plant : public Organism
     using Organism::Organism;
     public:
         void action(){};
-        collisionAction collision();
+        CollisionAction collision();
         void draw() const;
         virtual void printName() const { std::cout<<"Plant";}
 };

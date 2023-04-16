@@ -7,12 +7,22 @@ struct Action
     int organismIndex;
 };
 
-struct collisionAction
+struct CollisionAction
 {
     int realStrength;
-    int temporaryStrength;
-    bool canKill;
-    bool moved;
-    bool stopAfterThis;
-    bool canDieAfterFail = true;
+    int tempAttackStrength = -1;
+    int tempDefenceStrength = -1;
+    bool hasTempAttackStrength = false;
+    bool hasTempDefenceStrength = false;
+    bool escaped = false;
+    bool stopAfterDefence = false;
+    bool stopAfterAttack = false;
+};
+
+struct AttackAction
+{
+    int thisAttackerStrength;
+    int thisDefenderStrength;
+    int otherAttackerStrength;
+    int otherDefenderStrength;
 };

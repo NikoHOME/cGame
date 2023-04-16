@@ -1,4 +1,5 @@
 #include "world.h"
+#include "func.h"
 #include <iostream>
 
 
@@ -18,15 +19,33 @@ std::ostream& operator<<(std::ostream &out,const Organism &organism)
 
 void World::draw()
 {
-    for(int i=0; i<height; ++i)
+    for(int i = 0; i < boardSize.height; ++i)
     {
-        for(int j=0; j<width; ++j)
+        for(int j = 0; j < boardSize.width; ++j)
         {
             
             if(organismDisplay[j][i] != nullptr)
                 organismDisplay[j][i]->draw();
             else
                 std::cout<<". ";
+
+            
+        }
+        std::cout<<"   ";
+        for(int j = 0; j < boardSize.width; ++j)
+        {
+            
+            if(organismDisplay[j][i] != nullptr)
+            {
+                if(organismDisplay[j][i]->getPositionX() != j || organismDisplay[j][i]->getPositionY() != i)
+                    std::cout<<"! ";
+                else
+                    std::cout<<"* ";
+            }
+            else
+                std::cout<<". ";
+
+            
         }
         std::cout<<"\n";
     }
@@ -62,12 +81,17 @@ std::vector <Organism*> &World::getOrganisms()
 
 int World::getHeight()
 {
-    return height;
+    return boardSize.height;
 }
 int World::getWidth()
 {
-    return width;
+    return boardSize.width;
 }
+BoardSize World::getBoardSize()
+{
+    return boardSize;
+}
+
 
 void World::addActionToQueue(Action action)
 {
@@ -79,7 +103,8 @@ void World::nextTurn()
 
     for(auto organism : organisms)
     {
-        organism->action();/*
+        if(!organism->getIsDeadStatus())
+            organism->action();/*
     }
     while(!actions.empty())
     {
@@ -96,5 +121,6 @@ void World::nextTurn()
         //
         //organisms[action.organismIndex]->setPositionX(action.newPositionX);
         //organisms[action.organismIndex]->setPositionY(action.newPositionY);
+        //draw();
     }
 }

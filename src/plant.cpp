@@ -7,7 +7,12 @@ void Plant::draw() const
     std::cout<<"@ ";
 }
 
-collisionAction Plant::collision()
+CollisionAction Plant::collision()
 {
-    return {strength,strength,false,false,true};
+    CollisionAction action;
+    
+    action.realStrength = strength;
+
+
+    return action;
 }
