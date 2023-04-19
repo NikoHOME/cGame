@@ -14,14 +14,12 @@ class Organism
         int index;
         bool isDead;
         World *world;
-        std::string species;
     public:
         int getStrength() const;
         int getInnitiative() const;
         int getPositionX() const;
         int getPositionY() const;
         int getIndex() const;
-        std::string getName() const;
         bool getIsDeadStatus() const;
         World *getWorld() const;
 
@@ -37,12 +35,15 @@ class Organism
         {
             world = nullptr;
         }
-        Organism(int str, int init, int x, int y, std::string name = " ") : 
-        strength(str), innitiative(init), positionX(x), positionY(y), species(name)  
+        Organism(int str, int init, int x, int y) : 
+        strength(str), innitiative(init), positionX(x), positionY(y)
         {
             world = nullptr;
         };
         Organism(const Organism &organism);
+
+        virtual Organism *reproduce(int x, int y) = 0; 
+
 
         virtual void action() = 0;
         virtual CollisionAction collision() = 0;

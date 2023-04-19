@@ -17,3 +17,5 @@ bool isInBounds(BoardSize boardSize, Coordinate coordinate);
 void killIfStronger(Organism **thisOrganism, Organism **otherOrganism, CollisionAction thisCollision, CollisionAction otherCollision);
 
 void moveOrganism(Organism **organism, int x, int y);
+
+bool reproduceCollision(Organism **thisOrganism, Organism **otherOrganism);

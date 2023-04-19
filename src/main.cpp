@@ -2,6 +2,7 @@
 #include "world.h"
 #include "organism.h"
 #include "plant.h"
+#include "plants.h"
 #include "animal.h"
 #include "animals.h"
 
@@ -9,9 +10,9 @@ int main()
 {
     World world(5,5);
     
-    Plant plant(2,2,2,2);
-    Plant plant1(2,2,2,3);
-    Plant plant2(2,2,2,4);
+    SosnowskyHogweed grass1(2,2);
+    SosnowskyHogweed grass2(2,3);
+    SosnowskyHogweed grass3(2,4);
     Turtle animal(3,4);
     Fox fox(3,3);
     Fox fox1(4,3);
@@ -21,9 +22,9 @@ int main()
     Antilope antilope2(0,0);
     Antilope antilope3(1,0);
 
-    world.pushOrganism(&plant);
-    world.pushOrganism(&plant1);
-    world.pushOrganism(&plant2);
+    world.pushOrganism(&grass1);
+    world.pushOrganism(&grass2);
+    world.pushOrganism(&grass3);
     world.pushOrganism(&animal);
     world.pushOrganism(&fox);
     world.pushOrganism(&fox1);
@@ -32,17 +33,12 @@ int main()
     world.pushOrganism(&antilope2);
     world.pushOrganism(&antilope3);
 
-    world.draw();
+    for(int i=0 ;i<20; ++i)
+    {
+        world.draw();
 
-    world.nextTurn();
-
-
-    world.draw();
-
-
-    world.nextTurn();
-
-    world.draw();
+        world.nextTurn();
+    }
 
 
     return 0;

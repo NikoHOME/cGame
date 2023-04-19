@@ -1,11 +1,6 @@
 #pragma once
 #include "organism.h"
-
-struct MovementAction
-{
-    std:: pair <int,int> direction;
-    int newPositionX, newPositionY;
-};
+#include "action.h"
 
 class Animal : public Organism
 {
@@ -19,7 +14,8 @@ class Animal : public Organism
         void basicMovementHandle();
         void basicCollisionHandle();
         virtual void printName() const { std::cout<<"Animal";}
-        virtual Organism *reproduce(Organism *animal, int x,int y) = 0; 
+        virtual bool isSameSpecies(Organism *animal) = 0;
+
 };
 
 

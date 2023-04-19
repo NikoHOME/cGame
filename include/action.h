@@ -7,6 +7,12 @@ struct Action
     int organismIndex;
 };
 
+struct MovementAction
+{
+    std:: pair <int,int> direction;
+    int newPositionX, newPositionY;
+};
+
 struct CollisionAction
 {
     int realStrength;
@@ -14,9 +20,11 @@ struct CollisionAction
     int tempDefenceStrength = -1;
     bool hasTempAttackStrength = false;
     bool hasTempDefenceStrength = false;
+    int givenStrength = -1;
+    bool givesStrength = false;
     bool escaped = false;
-    bool stopAfterDefence = false;
-    bool stopAfterAttack = false;
+    bool killAfterDefeat = false;
+
 };
 
 struct AttackAction

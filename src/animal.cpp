@@ -45,55 +45,11 @@ void Animal::basicCollisionHandle()
         return;
     }
     
-
-    if((*thisOrganism)->getName() == (*otherOrganism)->getName())
-    {
-        std::vector< std::pair <int,int>> directions = world->getAiDirections();//[rand()%8];
-        std::vector< std::pair <int,int>> emptyCells;
-
-        Organism *targetOrganism;
-        Coordinate coordinate;
-        for(auto i : directions)
-        {
-            coordinate.x = positionX + i.first;
-            coordinate.y = positionY + i.second;
-            if(!isInBounds(world->getBoardSize(), coordinate))
-                continue;
-            targetOrganism = world->getOrganismDisplay()[coordinate.x][coordinate.y];
-            if(targetOrganism == nullptr)
-                emptyCells.push_back({coordinate.x,coordinate.y});
-        }
-        for(auto i : directions)
-        {
-            coordinate.x = (*otherOrganism)->getPositionX() + i.first;
-            coordinate.y = (*otherOrganism)->getPositionY() + i.second;
-            if(!isInBounds(world->getBoardSize(), coordinate))
-                continue;
-            targetOrganism = world->getOrganismDisplay()[coordinate.x][coordinate.y];
-            if(targetOrganism == nullptr)
-                emptyCells.push_back({coordinate.x,coordinate.y});
-        } 
-        if(emptyCells.size() == 0)
-            return;
-
-        std::pair <int,int> direction = emptyCells[rand()%emptyCells.size()];
-
-        Organism *baby = reproduce(*otherOrganism, direction.first, direction.second);
-        
-        if(baby == nullptr)
-            return;
-
-        world->pushOrganism(baby);
-
-
+    if(reproduceCollision(thisOrganism, otherOrganism))
         return;
-    }
-    
-    
+
     CollisionAction thisCollision = collision(), otherCollision = (*otherOrganism)->collision();
     
-
-
     if(thisCollision.escaped == true)
         return;
 
@@ -104,15 +60,7 @@ void Animal::basicCollisionHandle()
         return;
     }
     
-    
-
-    
     killIfStronger(thisOrganism, otherOrganism, thisCollision, otherCollision);
-    //if(otherCollision.stopAfterDefence)
-    //    return;
-    //if(thisCollision.stopAfterAttack)
-    //    return;
-    //killIfStronger(thisOrganism, otherOrganism, thisCollision.realStrength, otherCollision.realStrength, false, true);
 }
 
 
