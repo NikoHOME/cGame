@@ -2,6 +2,8 @@
 #include "organism.h"
 #include "action.h"
 
+#define GROW_CHANCE 10
+
 class Plant : public Organism
 {
     using Organism::Organism;
@@ -10,8 +12,8 @@ class Plant : public Organism
     public:
         void action();
         CollisionAction collision();
-        void draw() const;
-        virtual void printName() const { std::cout<<"Plant";}
+        virtual const char *getChar() const {return "?";}
+        virtual const char *getName() const {return "Plant";}
         void basicMovementHandle();
         void basicCollisionHandle();
 };

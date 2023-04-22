@@ -7,22 +7,20 @@
 
 void Fox::action()
 {
-    srand(time(0));
 
     std::vector< std::pair <int,int>> directions = world->getAiDirections();//[rand()%8];
     std::vector< std::pair <int,int>> safeDirections;
 
-    Organism *targetOrganism;
     Coordinate coordinate;
-    for(auto i : directions)
+    for(int i=0; i<NORMAL_AI; ++i)
     {
-        coordinate.x = positionX + i.first;
-        coordinate.y = positionY + i.second;
+        coordinate.x = positionX + directions[i].first;
+        coordinate.y = positionY + directions[i].second;
         if(!isInBounds(world->getBoardSize(), coordinate))
             continue;
-        targetOrganism = world->getOrganismDisplay()[positionX + i.first][positionY + i.second];
-        if(targetOrganism == nullptr || targetOrganism->getStrength() <= strength)
-            safeDirections.push_back(i);
+        auto target = world->getOrganismDisplay()[positionX + directions[i].first][positionY + directions[i].second];
+        if(target == nullptr || target->getStrength() < strength)
+            safeDirections.push_back(directions[i]);
     }
 
     if(safeDirections.size() == 0)
@@ -38,7 +36,6 @@ void Fox::action()
 
 void Turtle::action()
 {
-    srand(time(0));
 
     if(rand()%4 != 0)
         return;
@@ -54,7 +51,7 @@ CollisionAction Turtle::collision()
     CollisionAction action;
     action.realStrength = strength;
     action.hasTempDefenceStrength = true;
-    action.tempDefenceStrength = 4;
+    action.tempDefenceStrength = 5; // 5  so it loses against strength 5
 
     return action;
 }
@@ -62,7 +59,7 @@ CollisionAction Turtle::collision()
 
 void Antilope::action()
 {
-    movementAction.direction = world->getAiDirections()[rand()%8];
+    movementAction.direction = world->getAiDirections()[rand() % ANTILOPE_AI];
 
     Coordinate coordinate;
     coordinate.x = positionX + movementAction.direction.first;
@@ -71,22 +68,9 @@ void Antilope::action()
 
     while(!isInBounds(world->getBoardSize(), coordinate))
     {
-        movementAction.direction = world->getAiDirections()[rand()%8];
+        movementAction.direction = world->getAiDirections()[rand() % ANTILOPE_AI];
         coordinate.x = positionX + movementAction.direction.first;
         coordinate.y = positionY + movementAction.direction.second;  
-    }
-    if(rand()%2 == 0)
-    {
-        if(world->getOrganismDisplay()[coordinate.x][coordinate.y] == nullptr)
-        {
-            coordinate.x = positionX + movementAction.direction.first * 2;
-            coordinate.y = positionY + movementAction.direction.second * 2; 
-            if(!isInBounds(world->getBoardSize(), coordinate))
-            {
-                coordinate.x = positionX + movementAction.direction.first;
-                coordinate.y = positionY + movementAction.direction.second; 
-            }
-        }
     }
     
     movementAction.newPositionX = coordinate.x;
@@ -99,7 +83,6 @@ void Antilope::action()
 
 CollisionAction Antilope::collision()
 {
-    srand(time(0));
 
     CollisionAction action;
 
@@ -112,7 +95,7 @@ CollisionAction Antilope::collision()
     std::vector< std::pair <int,int>> directions = world->getAiDirections();//[rand()%8];
     std::vector< std::pair <int,int>> safeDirections;
 
-    Organism *targetOrganism;
+
     Coordinate coordinate;
     for(auto i : directions)
     {
@@ -120,8 +103,8 @@ CollisionAction Antilope::collision()
         coordinate.y = positionY + i.second;
         if(!isInBounds(world->getBoardSize(), coordinate))
             continue;
-        targetOrganism = world->getOrganismDisplay()[positionX + i.first][positionY + i.second];
-        if(targetOrganism == nullptr)
+        auto target = world->getOrganismDisplay()[positionX + i.first][positionY + i.second];
+        if(target == nullptr)
             safeDirections.push_back(i);
     }
     
@@ -142,4 +125,42 @@ CollisionAction Antilope::collision()
     action.escaped = true;
 
     return action;
+}
+
+
+void Player::inputAction()
+{
+    Coordinate coordinate;
+    coordinate.x = positionX;
+    coordinate.y = positionY;
+    World *world = getWorld();
+    switch(world->getPlayerAction())
+    {
+        case MOVE_UP:
+            coordinate.y--;
+            break;
+        case MOVE_DOWN:
+            coordinate.y++;
+            break;
+        case MOVE_LEFT:
+            coordinate.x--;
+            break;
+        case MOVE_RIGHT:
+            coordinate.x++;
+            break;
+    }
+
+    if(!isInBounds(world->getBoardSize(), coordinate))
+        return;
+    movementAction.newPositionX = coordinate.x;
+    movementAction.newPositionY = coordinate.y;
+    world->getQueue().push(world->getOrganismDisplay()[positionX][positionY]);
+
+}
+
+void Player::action()
+{
+    basicCollisionHandle();
+    getWorld()->setPlayerPosX(positionX);
+    getWorld()->setPlayerPosY(positionY);
 }

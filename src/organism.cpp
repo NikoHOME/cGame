@@ -27,11 +27,22 @@ int Organism::getIndex() const
 }
 bool Organism::getIsDeadStatus() const
 {
-    return isDead;
+    if(isDead)
+        return true;
+    auto organisms = world->getOrganismDisplay();
+    if(organisms[positionX][positionY] == nullptr)
+        return true;
+    if(organisms[positionX][positionY]->getIndex() != index)
+        return true;
+    return false;
 }
 World *Organism::getWorld() const
 {
     return world;
+}
+int Organism::getAge() const
+{
+    return world->getTurn() - index;
 }
 
 
@@ -74,6 +85,12 @@ Organism::Organism(const Organism &organism)
     this->positionX = organism.getPositionX();
     this->positionY = organism.getPositionY();
     this->world = organism.getWorld();
+}
+
+void Organism::die()
+{
+    isDead = true;
+    world->getOrganismDisplay()[positionX][positionY] = nullptr;
 }
 
 

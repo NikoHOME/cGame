@@ -44,32 +44,33 @@ void killIfStronger(Organism **thisOrganism, Organism **otherOrganism, Collision
 
     setAction(action, thisCollision, otherCollision);
 
-    if(action.thisAttackerStrength > action.otherDefenderStrength)
+    if(action.thisAttackerStrength >= action.otherDefenderStrength)
     {
         //std::cout<<action.thisAttackerStrength<< " " << action.otherDefenderStrength << "\n";
-        (*thisOrganism)->printName();
-        std::cout<<" : Attack :";
-        (*otherOrganism)->printName();
-        std::cout<<" killed by ";
-        (*thisOrganism)->printName();
-        std::cout<<"\n";   
+        //(*thisOrganism)->printName();
+        //std::cout<<" : Attack :";
+        //(*otherOrganism)->printName();
+        //std::cout<<" killed by ";
+        //(*thisOrganism)->printName();
+        //std::cout<<"\n";   
         if(otherCollision.givesStrength)
         {
             (*thisOrganism)->setStrength((*thisOrganism)->getStrength() + otherCollision.givenStrength);
         }
         if(otherCollision.killAfterDefeat)
         {
-            (*thisOrganism)->getWorld()->getOrganisms()[(*thisOrganism)->getIndex()]->setIsDeadStatus(true);
-            (*thisOrganism)->getWorld()->getOrganisms()[(*otherOrganism)->getIndex()]->setIsDeadStatus(true);
-            *thisOrganism = nullptr;
-            *otherOrganism = nullptr;
+            //(*thisOrganism)->setIsDeadStatus(true);
+            //(*otherOrganism)->setIsDeadStatus(true);
+            (*thisOrganism)->die();
+            (*otherOrganism)->die();
             return;
         }
 
         (*thisOrganism)->setPositionX((*otherOrganism)->getPositionX());
         (*thisOrganism)->setPositionY((*otherOrganism)->getPositionY());
-        (*thisOrganism)->getWorld()->getOrganisms()[(*otherOrganism)->getIndex()]->setIsDeadStatus(true);
-        *otherOrganism = nullptr;
+        //(*otherOrganism)->setIsDeadStatus(true);
+        (*otherOrganism)->die();
+        //*otherOrganism = nullptr;
         std::swap(*thisOrganism, *otherOrganism); 
     }
     /*
@@ -82,19 +83,19 @@ void killIfStronger(Organism **thisOrganism, Organism **otherOrganism, Collision
     if(action.otherAttackerStrength > action.thisDefenderStrength)
     {
         //std::cout<<action.thisDefenderStrength<< " " << action.otherAttackerStrength << "\n";
-        (*thisOrganism)->printName();
-        std::cout<<" : Defence : ";
-        (*thisOrganism)->printName();
-        std::cout<<" killed by ";
-        (*otherOrganism)->printName();
-        std::cout<<"\n";    
+        //(*thisOrganism)->printName();
+        //std::cout<<" : Defence : ";
+        //(*thisOrganism)->printName();
+        //std::cout<<" killed by ";
+        //(*otherOrganism)->printName();
+        //std::cout<<"\n";    
         if(thisCollision.givesStrength)
         {
             (*otherOrganism)->setStrength((*otherOrganism)->getStrength() + thisCollision.givenStrength);
         }
 
-        (*thisOrganism)->getWorld()->getOrganisms()[(*thisOrganism)->getIndex()]->setIsDeadStatus(true);
-        *thisOrganism = nullptr;
+        //(*thisOrganism)->setIsDeadStatus(true);
+       (*thisOrganism)->die();
     }
 }
 
@@ -106,8 +107,8 @@ void moveOrganism(Organism **organism, int x, int y)
     (*organism)->setPositionX(x);
     (*organism)->setPositionY(y);
 
-    (*organism)->printName();
-    std::cout<<" : "<<(*organism)->getPositionX()<<" "<<(*organism)->getPositionY()<<" -> "<<x<<" "<<y<<"\n";
+    //(*organism)->printName();
+    //std::cout<<" : "<<(*organism)->getPositionX()<<" "<<(*organism)->getPositionY()<<" -> "<<x<<" "<<y<<"\n";
 
     std::swap(*empty, *organism); 
 }
@@ -118,6 +119,8 @@ bool reproduceCollision(Organism **thisOrganism, Organism **otherOrganism)
 {
     auto animal1 = dynamic_cast<Animal *>(*thisOrganism);
     auto animal2 = dynamic_cast<Animal *>(*otherOrganism);
+    if(!animal2)
+        return false;
     if(!animal1->isSameSpecies(animal2))
         return false;
     
@@ -128,20 +131,20 @@ bool reproduceCollision(Organism **thisOrganism, Organism **otherOrganism)
 
     Organism *targetOrganism;
     Coordinate coordinate;
-    for(auto i : directions)
+    for(int i=0; i < NORMAL_AI; ++i)
     {
-        coordinate.x = animal1->getPositionX() + i.first;
-        coordinate.y = animal1->getPositionY() + i.second;
+        coordinate.x = animal1->getPositionX() + directions[i].first;
+        coordinate.y = animal1->getPositionY() + directions[i].second;
         if(!isInBounds(world->getBoardSize(), coordinate))
             continue;
         targetOrganism = world->getOrganismDisplay()[coordinate.x][coordinate.y];
         if(targetOrganism == nullptr)
             emptyCells.push_back({coordinate.x,coordinate.y});
     }
-    for(auto i : directions)
+    for(int i=0; i < NORMAL_AI; ++i)
     {
-        coordinate.x = (*otherOrganism)->getPositionX() + i.first;
-        coordinate.y = (*otherOrganism)->getPositionY() + i.second;
+        coordinate.x = (*otherOrganism)->getPositionX() + directions[i].first;
+        coordinate.y = (*otherOrganism)->getPositionY() + directions[i].second;
         if(!isInBounds(world->getBoardSize(), coordinate))
             continue;
         targetOrganism = world->getOrganismDisplay()[coordinate.x][coordinate.y];
@@ -149,14 +152,14 @@ bool reproduceCollision(Organism **thisOrganism, Organism **otherOrganism)
             emptyCells.push_back({coordinate.x,coordinate.y});
     } 
     if(emptyCells.size() == 0)
-        return false;
+        return true;
 
     std::pair <int,int> direction = emptyCells[rand()%emptyCells.size()];
 
     Organism *baby = animal1->reproduce(direction.first, direction.second);
     
     if(baby == nullptr)
-        return false;
+        return true;
 
     world->pushOrganism(baby);
     return true;

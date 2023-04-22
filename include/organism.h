@@ -12,7 +12,7 @@ class Organism
         int innitiative;
         int positionX,positionY;
         int index;
-        bool isDead;
+        bool isDead = false;
         World *world;
     public:
         int getStrength() const;
@@ -22,6 +22,7 @@ class Organism
         int getIndex() const;
         bool getIsDeadStatus() const;
         World *getWorld() const;
+        int getAge() const;
 
         void setStrength(int str);
         void setInnitiative(int ini);
@@ -30,6 +31,7 @@ class Organism
         void setIndex(int ind);
         void setIsDeadStatus(bool dead);
         void setWorld(World *world); 
+    
 
         Organism()
         {
@@ -43,11 +45,11 @@ class Organism
         Organism(const Organism &organism);
 
         virtual Organism *reproduce(int x, int y) = 0; 
-
+        void die();
 
         virtual void action() = 0;
         virtual CollisionAction collision() = 0;
-        virtual void draw() const = 0;
-        virtual void printName() const = 0;
+        virtual const char *getName() const = 0;
+        virtual const char *getChar() const = 0;
 
 };

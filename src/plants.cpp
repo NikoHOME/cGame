@@ -3,12 +3,11 @@
 #include "world.h"
 #include "animals.h"
 
-#define GROW_CHANCE 10
+
 
 
 void Dandelion::action()
 {
-    srand(time(0));
 
     for(int i=0;i<3;++i) 
     {
@@ -32,7 +31,7 @@ CollisionAction Guarana::collision()
     return action;
 }
 
-CollisionAction WolfBerry::collision()
+CollisionAction Belladonna::collision()
 {
     CollisionAction action;
     action.realStrength = 0;
@@ -43,15 +42,15 @@ CollisionAction WolfBerry::collision()
 
 void SosnowskyHogweed::action()
 {
-    srand(time(0));
-
+    //clear();
+    //world->draw();
     std::vector< std::pair <int,int>> directions = world->getAiDirections();//[rand()%8];
     Organism *targetOrganism;
     Coordinate coordinate;
-    for(auto i : directions)
+    for(int i=0; i<NORMAL_AI; ++i)
     {
-        coordinate.x = positionX + i.first;
-        coordinate.y = positionY + i.second;
+        coordinate.x = positionX + directions[i].first;
+        coordinate.y = positionY + directions[i].second;
         if(!isInBounds(world->getBoardSize(), coordinate))
             continue;
         targetOrganism = world->getOrganismDisplay()[coordinate.x][coordinate.y];
@@ -60,14 +59,20 @@ void SosnowskyHogweed::action()
             auto organism = dynamic_cast<Animal *>(targetOrganism);
             if(organism == nullptr)
                 continue;
-            world->getOrganisms()[targetOrganism->getIndex()]->setIsDeadStatus(true);
+            //world->getOrganisms()[targetOrganism->getIndex()]->setIsDeadStatus(true);
             world->getOrganismDisplay()[coordinate.x][coordinate.y] = nullptr;
         }
     }
-
-    if(rand()%100 >= GROW_CHANCE)
+    int chance = rand()%100;
+    //mvprintw(5,2, "%s",getName());
+    //mvprintw(6,2,"GROW% = %d", chance);
+    //mvprintw(8,2,"PosX = %d PosY =%d", positionX, positionY);
+    //refresh();
+    if(chance >= GROW_CHANCE)
+    {
         return;
-
+    
+    }
     basicMovementHandle();
 
     basicCollisionHandle();

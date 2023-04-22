@@ -1,12 +1,18 @@
 #include "plant.h"
 #include <iostream>
+#include "world.h"
 
 class Grass : public Plant
 {   
     public:
         Grass(int x, int y) : Plant(0,0,x,y) {}
-        void draw() const {std::cout<<"G ";}
-        void printName() const { std::cout<<"Grass";}
+        const char *getChar() const 
+        {
+            wattroff(world->getWindow(), COLOR_PAIR(BASIC_COLOUR));
+            wattron(world->getWindow(), COLOR_PAIR(GRASS_COLOUR)); 
+            return "G";
+        }
+        const char *getName() const {return "Grass";}
         Grass *reproduce(int x, int y) 
         {
             return new Grass(x,y);
@@ -16,8 +22,13 @@ class Dandelion : public Plant
 {   
     public:
         Dandelion(int x, int y) : Plant(0,0,x,y) {}
-        void draw() const {std::cout<<"D ";}
-        void printName() const { std::cout<<"Dandelion";}
+        const char *getChar() const 
+        {
+            wattroff(world->getWindow(), COLOR_PAIR(BASIC_COLOUR));
+            wattron(world->getWindow(), COLOR_PAIR(DANDELION_COLOUR)); 
+            return "D";
+        }
+        const char *getName() const {return "Dandelion";}
         void action();
         Dandelion *reproduce(int x, int y) 
         {
@@ -29,8 +40,13 @@ class Guarana : public Plant
 {   
     public:
         Guarana(int x, int y) : Plant(0,0,x,y) {}
-        void draw() const {std::cout<<"D ";}
-        void printName() const { std::cout<<"Guarana";}
+        const char *getChar() const 
+        {
+            wattroff(world->getWindow(), COLOR_PAIR(BASIC_COLOUR));
+            wattron(world->getWindow(), COLOR_PAIR(GUARANA_COLOUR)); 
+            return "G";
+        }
+        const char *getName() const {return "Guarana";}
         CollisionAction collision();
         Guarana *reproduce(int x, int y) 
         {
@@ -38,16 +54,21 @@ class Guarana : public Plant
         }
 };
 
-class WolfBerry : public Plant
+class Belladonna : public Plant
 {   
     public:
-        WolfBerry(int x, int y) : Plant(99,0,x,y) {}
-        void draw() const {std::cout<<"B ";}
-        void printName() const { std::cout<<"Wolfberry";}
-        CollisionAction collision();
-        WolfBerry *reproduce(int x, int y) 
+        Belladonna(int x, int y) : Plant(99,0,x,y) {}
+        const char *getChar() const 
         {
-            return new WolfBerry(x,y);
+            wattroff(world->getWindow(), COLOR_PAIR(BASIC_COLOUR));
+            wattron(world->getWindow(), COLOR_PAIR(BELLADONA_COLOUR)); 
+            return "B";
+        }
+        const char *getName() const {return "Belladonna";}
+        CollisionAction collision();
+        Belladonna *reproduce(int x, int y) 
+        {
+            return new Belladonna(x,y);
         }
 };
 
@@ -55,8 +76,13 @@ class SosnowskyHogweed : public Plant
 {   
     public:
         SosnowskyHogweed(int x, int y) : Plant(10,0,x,y) {}
-        void draw() const {std::cout<<"H ";}
-        void printName() const { std::cout<<"Sosnowsky hogweed";}
+        const char *getChar() const 
+        {
+            wattroff(world->getWindow(), COLOR_PAIR(BASIC_COLOUR));
+            wattron(world->getWindow(), COLOR_PAIR(HOGWEED_COLOUR)); 
+            return "H";
+        }
+        const char *getName() const {return "Sosnowsky hogweed";}
         void action();
         CollisionAction collision();
         SosnowskyHogweed *reproduce(int x, int y) 

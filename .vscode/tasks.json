@@ -12,7 +12,8 @@
 				"-g",
 				"-I",
 				"${workspaceFolder}/include",
-				"${workspaceFolder}/src/*.cpp"
+				"${workspaceFolder}/src/*.cpp",
+				"-lncurses",
 			],
 			"options": {
 				"cwd": "${fileDirname}"

@@ -6,14 +6,9 @@
 
 #include "func.h"
 
-void Animal::draw() const
-{
-    std::cout<<"? ";
-}
-
 void Animal::basicMovementHandle()
 {
-    movementAction.direction = world->getAiDirections()[rand()%8];
+    movementAction.direction = world->getAiDirections()[rand() % NORMAL_AI];
 
     Coordinate coordinate;
     coordinate.x = positionX + movementAction.direction.first;
@@ -22,7 +17,7 @@ void Animal::basicMovementHandle()
 
     while(!isInBounds(world->getBoardSize(), coordinate))
     {
-        movementAction.direction = world->getAiDirections()[rand()%8];
+        movementAction.direction = world->getAiDirections()[rand() % NORMAL_AI];
         coordinate.x = positionX + movementAction.direction.first;
         coordinate.y = positionY + movementAction.direction.second;  
     }
@@ -37,8 +32,8 @@ void Animal::basicCollisionHandle()
     otherOrganism = &world->getOrganismDisplay()[movementAction.newPositionX][movementAction.newPositionY];
     if(*otherOrganism == nullptr)
     {
-        printName();
-        std::cout<<" : "<<positionX<<" "<<positionY<<" -> "<<movementAction.newPositionX<<" "<<movementAction.newPositionY<<"\n";
+        //printName();
+        //std::cout<<" : "<<positionX<<" "<<positionY<<" -> "<<movementAction.newPositionX<<" "<<movementAction.newPositionY<<"\n";
         std::swap(*thisOrganism, *otherOrganism);
         setPositionX(movementAction.newPositionX);
         setPositionY(movementAction.newPositionY);
@@ -56,7 +51,7 @@ void Animal::basicCollisionHandle()
 
     if(otherCollision.escaped == true)
     {
-        moveOrganism(thisOrganism, movementAction.newPositionX, movementAction.newPositionY);
+        //moveOrganism(thisOrganism, movementAction.newPositionX, movementAction.newPositionY);
         return;
     }
     
@@ -66,7 +61,6 @@ void Animal::basicCollisionHandle()
 
 void Animal::action()
 {
-    srand(time(0));
 
     basicMovementHandle();
 

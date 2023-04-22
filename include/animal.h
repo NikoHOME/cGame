@@ -10,10 +10,10 @@ class Animal : public Organism
     public:
         virtual void action();
         virtual CollisionAction collision();
-        void draw() const;
+        virtual const char *getName() const { return "Animal";}
+        virtual const char *getChar() const { return "?";}
         void basicMovementHandle();
         void basicCollisionHandle();
-        virtual void printName() const { std::cout<<"Animal";}
         virtual bool isSameSpecies(Organism *animal) = 0;
 
 };
