@@ -8,7 +8,7 @@
 
 int main()
 {
-    World world(50,25);
+    World world(100,50);
 
     world.initializeWindow();
     world.draw();

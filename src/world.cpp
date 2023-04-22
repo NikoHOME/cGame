@@ -344,7 +344,7 @@ void spawnAnimals(World *world)
     int width = world->boardSize.width;
     int height = world->boardSize.height;
 
-    int average = (width + height) / 8;
+    int average = (width + height) / 8 + 1;
     int wolfAmmount = rand() % average * WOLF_MULTIPLIER;
     int foxAmmount = rand() % average * FOX_MULTIPLIER;
     int sheepAmmount = rand() % average * SHEEP_MULTIPLIER;
@@ -388,7 +388,7 @@ void spawnPlants(World *world)
     int width = world->boardSize.width;
     int height = world->boardSize.height;
 
-    int average = (width + height) / 8;
+    int average = (width + height) / 8 + 1;
     int grassAmmount = rand() % average * GRASS_MULTIPLIER;
     int belladonaAmmount = rand() % average * BELLADONA_MULTIPLIER;
     int hogweedAmmount = rand() % average * HOGWEED_MULTIPLIER;
