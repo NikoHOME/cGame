@@ -7,12 +7,15 @@
 			"command": "/usr/bin/g++",
 			"args": [
 				"-fdiagnostics-color=always",
+
 				"-o",
 				"${workspaceFolder}/main",
 				"-g",
 				"-I",
 				"${workspaceFolder}/include",
 				"${workspaceFolder}/src/*.cpp",
+				"${workspaceFolder}/src/animals/*.cpp",
+				"${workspaceFolder}/src/plants/*.cpp",
 				"-lncurses",
 			],
 			"options": {

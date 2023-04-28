@@ -1,6 +1,6 @@
 #pragma once
-#include "organism.h"
-#include "action.h"
+#include "organism.hpp"
+#include "action.hpp"
 
 class Animal : public Organism
 {
@@ -12,9 +12,14 @@ class Animal : public Organism
         virtual CollisionAction collision();
         virtual const char *getName() const { return "Animal";}
         virtual const char *getChar() const { return "?";}
+        virtual const char *getKillMessage() const override {return "eaten";}
+        virtual const char *getBornMessage() const override {return "was born";}
+        virtual void write(std::ofstream &file) = 0;
         void basicMovementHandle();
         void basicCollisionHandle();
         virtual bool isSameSpecies(Organism *animal) = 0;
+        
+        bool reproduceCollision(Organism *otherOrganism);
 
 };
 

@@ -1,11 +1,5 @@
 #pragma once
 
-struct Action
-{
-    int previousPositionX, previousPositionY;
-    int newPositionX, newPositionY;
-    int organismIndex;
-};
 
 struct MovementAction
 {
@@ -24,6 +18,8 @@ struct CollisionAction
     bool givesStrength = false;
     bool escaped = false;
     bool killAfterDefeat = false;
+    bool escapeAfterFailedAttack = false;
+    bool isImmortal = false;
 
 };
 

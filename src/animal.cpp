@@ -1,10 +1,10 @@
-#include "animal.h"
-#include "world.h"
+#include "animal.hpp"
+#include "world.hpp"
 #include <iostream>
 #include <time.h>
 #include <cstdlib>
 
-#include "func.h"
+#include "func.hpp"
 
 void Animal::basicMovementHandle()
 {
@@ -39,8 +39,8 @@ void Animal::basicCollisionHandle()
         setPositionY(movementAction.newPositionY);
         return;
     }
-    
-    if(reproduceCollision(thisOrganism, otherOrganism))
+    Animal *thisAnimal = dynamic_cast<Animal *>(*thisOrganism);
+    if(thisAnimal->reproduceCollision(*otherOrganism))
         return;
 
     CollisionAction thisCollision = collision(), otherCollision = (*otherOrganism)->collision();
@@ -54,8 +54,7 @@ void Animal::basicCollisionHandle()
         //moveOrganism(thisOrganism, movementAction.newPositionX, movementAction.newPositionY);
         return;
     }
-    
-    killIfStronger(thisOrganism, otherOrganism, thisCollision, otherCollision);
+    (*thisOrganism)->killIfStronger(*otherOrganism, thisCollision, otherCollision);
 }
 
 
@@ -74,4 +73,64 @@ CollisionAction Animal::collision()
     action.realStrength = strength;
 
     return action;
+}
+
+bool Animal::reproduceCollision(Organism *inputOrganism)
+{
+    Organism **thisOrganism = &world->getOrganismDisplay()[positionX][positionY];
+    Organism **otherOrganism = &world->getOrganismDisplay()[inputOrganism->getPositionX()][inputOrganism->getPositionY()];
+
+    auto animal1 = dynamic_cast<Animal *>(*thisOrganism);
+    auto animal2 = dynamic_cast<Animal *>(*otherOrganism);
+    if(!animal2)
+        return false;
+    if(!animal1->isSameSpecies(animal2))
+        return false;
+    
+    World *world = animal1->getWorld();
+
+    std::vector< std::pair <int,int>> directions = world->getAiDirections();//[rand()%8];
+    std::vector< std::pair <int,int>> emptyCells;
+
+    Organism *targetOrganism;
+    Coordinate coordinate;
+    for(int i=0; i < NORMAL_AI; ++i)
+    {
+        coordinate.x = animal1->getPositionX() + directions[i].first;
+        coordinate.y = animal1->getPositionY() + directions[i].second;
+        if(!isInBounds(world->getBoardSize(), coordinate))
+            continue;
+        targetOrganism = world->getOrganismDisplay()[coordinate.x][coordinate.y];
+        if(targetOrganism == nullptr)
+            emptyCells.push_back({coordinate.x,coordinate.y});
+    }
+    for(int i=0; i < NORMAL_AI; ++i)
+    {
+        coordinate.x = (*otherOrganism)->getPositionX() + directions[i].first;
+        coordinate.y = (*otherOrganism)->getPositionY() + directions[i].second;
+        if(!isInBounds(world->getBoardSize(), coordinate))
+            continue;
+        targetOrganism = world->getOrganismDisplay()[coordinate.x][coordinate.y];
+        if(targetOrganism == nullptr)
+            emptyCells.push_back({coordinate.x,coordinate.y});
+    } 
+    if(emptyCells.size() == 0)
+        return true;
+
+    std::pair <int,int> direction = emptyCells[rand()%emptyCells.size()];
+
+    Organism *baby = animal1->reproduce(direction.first, direction.second);
+    
+    if(baby == nullptr)
+        return true;
+
+    Message message;
+    message.animal1 = baby->getName();
+    message.message = baby->getBornMessage();
+    message.animal2 = " ";
+    world->getManager()->pushMessage(message);
+
+    world->pushOrganism(baby);
+    return true;
+
 }

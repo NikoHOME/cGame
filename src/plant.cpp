@@ -1,5 +1,5 @@
-#include "plant.h"
-#include "world.h"
+#include "plant.hpp"
+#include "world.hpp"
 #include <iostream>
 
 
@@ -45,6 +45,12 @@ void Plant::basicCollisionHandle()
 
     Organism *baby = this->reproduce(movementAction.newPositionX, movementAction.newPositionY);
 
+    Message message;
+    message.animal1 = baby->getName();
+    message.message = baby->getBornMessage();
+    message.animal2 = " ";
+    world->getManager()->pushMessage(message);
+    
     world->pushOrganism(baby);
     world->draw();
 }

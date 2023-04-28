@@ -1,150 +1,49 @@
-#include "world.h"
-#include "func.h"
+#include "world.hpp"
+#include "func.hpp"
 #include <iostream>
 #include <ncurses.h>
 #include <unistd.h>
-#include "animals.h"
-#include "plants.h"
+#include "animals.hpp"
+#include "plants.hpp"
 
-#define MAX_BOARD_SIZE_Y (LINES/2-1) //Max window size based on terminal
-#define MAX_BOARD_SIZE_X (COLS/4)
+#define ABILITY_COOLDOWN 10
+#define ABILITY_DURATION 5
 
-
-
-
-
-WINDOW *createMenu(int maxy,int maxx,int heightght,int widthth)
+bool World::playerCanUseAbility()
 {
-    WINDOW *window = newwin(heightght,widthth,(maxy-heightght)/2,(maxx-widthth)/2);
-    box(window, 0, 0);
-    keypad(window,true);
-    return window;
+    if(turn - lastTimeAbilityUsed >= ABILITY_COOLDOWN)
+        return true;
+    return false;
 }
 
-void World::processInput()
+bool World::playerHasAbility()
 {
-    Player *player = dynamic_cast<Player *>(organismDisplay[playerPosX][playerPosY]);
-    if(!player) playerAlive = false;
-    switch(playerInput)
-    {
-        case MOVE_UP: case MOVE_DOWN: case MOVE_LEFT: case MOVE_RIGHT:
-            if(!playerAlive)
-                break;
-            player->inputAction();
-            nextTurn();
-            draw();
-            break;
-        case NEXT_TURN:
-            nextTurn();
-            draw();
-            break;
-        case SLOW_TURN:
-            stepNextTurn();
-            draw();
-            break;
-            
-    }
-}
-
-bool World::handleInput()
-{
-    int key = wgetch(window);
-    switch(key)
-    {
-        case KEY_UP:
-            playerInput = MOVE_UP;
-            break;
-        case KEY_LEFT:
-            playerInput = MOVE_LEFT;
-            break;
-        case KEY_DOWN:
-            playerInput = MOVE_DOWN;
-            break;
-        case KEY_RIGHT:
-            playerInput = MOVE_RIGHT;
-            break;
-        case NEXT_TURN:
-            playerInput = NEXT_TURN;
-            break;
-        case SLOW_TURN:
-            playerInput = SLOW_TURN;
-            break;
-        case QUIT_KEY:
-            return false;
-            break;
-    }
-    return true;
+    if(AbilityDuration > 0 )
+        return true;
+    return false;
 }
 
 
 
 void World::initializeWindow()
 {
-	initscr();
-    cbreak();
-    noecho();
-    refresh();
-	curs_set(0);
-    intrflush(stdscr, FALSE);
-    keypad(stdscr, TRUE);
-
-    start_color();
-    use_default_colors();
-    init_pair(BASIC_COLOUR, COLOR_WHITE, COLOR_BLACK);
-
-    init_pair(WOLF_COLOUR, COLOR_BLACK+8, COLOR_BLACK);
-    init_pair(FOX_COLOUR, COLOR_RED+8, COLOR_BLACK);
-    init_pair(SHEEP_COLOUR, COLOR_WHITE, COLOR_BLACK);
-    init_pair(TURTLE_COLOUR, COLOR_GREEN, COLOR_BLACK);
-    init_pair(ANTILOPE_COLOUR, COLOR_RED, COLOR_BLACK);
-
-    init_pair(GRASS_COLOUR, COLOR_GREEN+8, COLOR_BLACK);
-    init_pair(GUARANA_COLOUR, COLOR_MAGENTA+8, COLOR_BLACK);
-    init_pair(BELLADONA_COLOUR, COLOR_BLUE, COLOR_BLACK);
-    init_pair(HOGWEED_COLOUR, COLOR_CYAN, COLOR_BLACK);
-    init_pair(DANDELION_COLOUR, COLOR_YELLOW, COLOR_BLACK);
-
-    init_pair(PLAYER_COLOUR, COLOR_BLACK, COLOR_WHITE);
-
-
-	//Turn off ESC delay
-	ESCDELAY = 25;
-
 
 	//maxBoardsize used in custom board size
 	int maxy,maxx,maxBoardSize;
 	getmaxyx(stdscr,maxy,maxx);
 
-	if(MAX_BOARD_SIZE_X>MAX_BOARD_SIZE_Y)
-		maxBoardSize=MAX_BOARD_SIZE_Y;
-	else
-		maxBoardSize=MAX_BOARD_SIZE_X;
-    
-	window = createMenu(maxy,maxx,boardSize.height+2,boardSize.width+2);
+	window = newwin(boardSize.height+2, (boardSize.width)*2+2, (maxy-boardSize.height+2)/2, (maxx-((boardSize.width)*2+2))/2);
+    box(window, 0, 0);
+    keypad(window,true);
 
     
     refresh();
 	wrefresh(window);
 }
 
-std::ostream& operator<<(std::ostream &out,const Action &action)
-{
-    out<<action.previousPositionX<<" "<<action.previousPositionY<<" -> "<<action.newPositionX<<" "<<action.newPositionY;
-    return out;
-}
-
-std::ostream& operator<<(std::ostream &out,const Organism &organism)
-{
-    out<<"{"<<organism.getPositionX()<<" "<<organism.getPositionY()<<" "<<organism.getIndex()<<"} ";
-    //organism.draw();
-    return out;
-}
-
 void World::draw()
 {
 
-    mvprintw(4,2,"Turn: %d",turn);
-    refresh();
     for(int i = 0; i < boardSize.height; ++i)
     {
         for(int j = 0; j < boardSize.width; ++j)
@@ -152,19 +51,51 @@ void World::draw()
             wattron(window,COLOR_PAIR(BASIC_COLOUR));
             attron(COLOR_PAIR(BASIC_COLOUR));
             if(organismDisplay[j][i] != nullptr)
-                mvwprintw(window,i+1,j+1,organismDisplay[j][i]->getChar());
+            {
+                mvwprintw(window,i+1,j*2+1,organismDisplay[j][i]->getChar());
+                wattron(window,COLOR_PAIR(BASIC_COLOUR));
+                mvwprintw(window,i+1,j*2+2," ");
+            }
             else
-                mvwprintw(window,i+1,j+1,".");
+                mvwprintw(window,i+1,j*2+1,". ");
             
         }
     }
-   
+    mvprintw(4,10,"O Turn: %d",turn);
+    if(playerCanUseAbility())
+        mvprintw(6,10,"O Ability avaible      ");
+    else
+        mvprintw(6,10,"X Ability not avaible ");
+    if(playerHasAbility())
+        mvprintw(8,10,"O Ability duration: %d",AbilityDuration);
+    else
+        mvprintw(8,10,"X Ability duration: %d",AbilityDuration);
+    if(playerAlive && organismDisplay[playerPosX][playerPosY] != nullptr)
+        mvprintw(10,10,"Player Strength: %d", organismDisplay[playerPosX][playerPosY]->getStrength());
+    else
+        playerAlive = false;
+
+    mvprintw(12,10,"n - Next turn");     
+    mvprintw(13,10,"q - Quit");  
+    mvprintw(14,10,"e - Use ability");  
+    mvprintw(15,10,"Arrows - Movement");  
+    mvprintw(16,10,"s - Save");
+    mvprintw(17,10,"l - Load");
+
+
+    refresh();
     box(window,0,0);
     wrefresh(window);
 }
 
 void World::pushOrganism(Organism *organism)
 {
+    Organism *oldOrganism = organismDisplay[organism->getPositionX()][organism->getPositionY()];
+    if(oldOrganism != nullptr)
+    {
+        pushDeadOrganism(oldOrganism);
+    }
+
     organism->setWorld(this);
     organismDisplay[organism->getPositionX()][organism->getPositionY()] = organism;
     organism->setIndex(newAnimalIndex++);
@@ -173,76 +104,16 @@ void World::pushOrganism(Organism *organism)
     
 }
 
-std::vector <std::pair <int,int>> &World::getAiDirections()
-{
-    return aiDirections;
-}
-std::vector <std::vector<Organism*>> &World::getOrganismDisplay()
-{
-    return organismDisplay;
-}
-
-
-int World::getHeight()
-{
-    return boardSize.height;
-}
-int World::getWidth()
-{
-    return boardSize.width;
-}
-int World::getTurn()
-{
-    return turn;
-}
-BoardSize World::getBoardSize()
-{
-    return boardSize;
-}
-WINDOW *World::getWindow()
-{
-    return window;
-}
-char World::getPlayerAction()
-{
-    return playerInput;
-}
-int World::getPlayerPosX()
-{
-    return playerPosX;
-}
-int World::getPlayerPosY()
-{
-    return playerPosY;
-}
-std::priority_queue <Organism*, std::vector<Organism*>, CompareOrganism> &World::getQueue()
-{
-    return moveQueue;
-}
-void World::addActionToQueue(Action action)
-{
-    actions.push(action);
-}
-
-
-
-void World::setPlayerPosX(int x)
-{
-    playerPosX = x;
-}
-void World::setPlayerPosY(int y)
-{
-    playerPosY = y;
-}
 
 void World::nextTurn()
 {
-    ++turn;
+    mvprintw(4,10,"X Turn: %d",turn);
+    refresh();
     for(int i=0; i<boardSize.width; ++i)
     {
         for(int j=0; j<boardSize.height; ++j)
         {
-            if(organismDisplay[i][j] != nullptr && (i!=playerPosX && j!=playerPosY))
+            if(organismDisplay[i][j] != nullptr && (!playerAlive || (i!=playerPosX && j!=playerPosY)))
             {
                 moveQueue.push(organismDisplay[i][j]);
                 //sleep(1);
@@ -256,40 +127,103 @@ void World::nextTurn()
     {
         auto top = moveQueue.top();
         moveQueue.pop();
-        if(top == nullptr || top->getIsDeadStatus())
+        if(top->getIsDeadStatus())
             continue;
+
         top->action();
-        draw();
+    }
+
+    while(!deadOrganisms.empty())
+    {
+        auto front = deadOrganisms.front();
+        deadOrganisms.pop();
+        Animal *animal = dynamic_cast<Animal *>(front);
+        if(animal != nullptr)
+        {
+            delete animal;
+            continue;
+        }
+
+        Plant *plant = dynamic_cast<Plant *>(front);
+        if(plant != nullptr)
+        {
+            delete plant;
+            continue;
+        }
+    }
+
+    if(playerHasAbility())
+        --AbilityDuration;
+    ++turn;
+}
+
+World::World(int height, int width, bool copy)
+{
+    boardSize.width = width;
+    boardSize.height = height;
+    organismDisplay.resize(width);
+    for(int i=0; i < width; ++i)
+        organismDisplay[i].resize(height);
+
+    aiDirections.push_back({0,-1});
+    aiDirections.push_back({0,1});
+    aiDirections.push_back({-1,0});
+    aiDirections.push_back({1,0});
+
+    int size = aiDirections.size();
+
+    for(int i = 0; i < size; ++i) 
+    {
+        auto dir = aiDirections[i];
+        aiDirections.push_back({dir.first*2,dir.second*2});
+    }
+    aiDirections.push_back({1,1});
+    aiDirections.push_back({1,-1});
+    aiDirections.push_back({-1,1});
+    aiDirections.push_back({-1,-1});
+
+    if(!copy)
+    {
+        srand(time(0));
+
+        spawnAnimals();
+        spawnPlants();
+
+        Organism *player = new Player(rand() % width, rand() % height);
+        playerPosX = player->getPositionX();
+        playerPosY = player->getPositionY();
+        pushOrganism(player);
     }
 }
 
-void World::stepNextTurn()
+WorldData World::getWorldData()
 {
-    ++turn;
-    for(int i=0; i<boardSize.width; ++i)
-    {
-        for(int j=0; j<boardSize.height; ++j)
-        {
-            if(organismDisplay[i][j] != nullptr)
-            {
-                moveQueue.push(organismDisplay[i][j]);
-                //sleep(1);
-                //organismDisplay[i][j]->action();
-                //draw();
-            }
-        }
-    }
+    WorldData data;
 
-    while(!moveQueue.empty())
-    {
-        auto top = moveQueue.top();
-        moveQueue.pop();
-        if(top == nullptr || top->getIsDeadStatus())
-            continue;
-        top->action();
-        draw();
-        usleep(100000);
-    }
+    data.AbilityDuration = AbilityDuration;
+    data.boardSize = boardSize;
+    data.lastTimeAbilityUsed = lastTimeAbilityUsed;
+    data.newAnimalIndex = newAnimalIndex;
+    data.playerAlive = playerAlive;
+    data.playerInput = playerInput;
+    data.playerPosX = playerPosX;
+    data.playerPosY = playerPosY;
+    data.turn = turn;
+
+    return data;
+}
+
+void World::setWorldData(WorldData data)
+{
+    AbilityDuration = data.AbilityDuration; 
+    boardSize = data.boardSize;
+    lastTimeAbilityUsed = data.lastTimeAbilityUsed;
+    newAnimalIndex = data.newAnimalIndex;
+    playerAlive = data.playerAlive;
+    playerInput = data.playerInput;
+    playerPosX = data.playerPosX;
+    playerPosY = data.playerPosY;
+    turn = data.turn;
 }
 
 #define WOLF_MULTIPLIER 3
@@ -305,44 +239,11 @@ void World::stepNextTurn()
 #define GUARANA_MULTIPLIER 3
 
 
-World::World(int width, int height)
-{
-    boardSize.width = width;
-    boardSize.height = height;
-    organismDisplay.resize(width);
-    for(int i=0; i < width; ++i)
-        organismDisplay[i].resize(height);
-
-    aiDirections.push_back({0,-1});
-    aiDirections.push_back({0,1});
-    aiDirections.push_back({-1,0});
-    aiDirections.push_back({1,0});
-
-    for(auto dir : aiDirections) 
-    {
-        aiDirections.push_back({dir.first*2,dir.second*2});
-    }
-    aiDirections.push_back({1,1});
-    aiDirections.push_back({1,-1});
-    aiDirections.push_back({-1,1});
-    aiDirections.push_back({-1,-1});
-
-    srand(time(0));
-
-    spawnAnimals(this);
-    spawnPlants(this);
-
-    Organism *player = new Player(rand() % width, rand() % height);
-    playerPosX = player->getPositionX();
-    playerPosY = player->getPositionY();
-    pushOrganism(player);
-}
-
-void spawnAnimals(World *world)
+void World::spawnAnimals()
 {
     Organism *newOrganism;
-    int width = world->boardSize.width;
-    int height = world->boardSize.height;
+    int width = boardSize.width;
+    int height = boardSize.height;
 
     int average = (width + height) / 8 + 1;
     int wolfAmmount = rand() % average * WOLF_MULTIPLIER;
@@ -351,42 +252,42 @@ void spawnAnimals(World *world)
     int turtleAmmount = rand() % average * TURTLE_MULTIPLIER;
     int antilopeAmmount = rand() % average * ANTILOPE_MULTIPLIER;
 
-    for(int i = 0; i < wolfAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(wolfAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Wolf(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }
 
-    for(int i = 0; i < sheepAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(sheepAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Sheep(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }
 
-    for(int i = 0; i < foxAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(foxAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Fox(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }    
 
-    for(int i = 0; i < turtleAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(turtleAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Turtle(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }
     
-    for(int i = 0; i < antilopeAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(antilopeAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Antilope(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }
 }
 
-void spawnPlants(World *world)
+void World::spawnPlants()
 {
     Organism *newOrganism;
-    int width = world->boardSize.width;
-    int height = world->boardSize.height;
+    int width = boardSize.width;
+    int height = boardSize.height;
 
     int average = (width + height) / 8 + 1;
     int grassAmmount = rand() % average * GRASS_MULTIPLIER;
@@ -395,33 +296,33 @@ void spawnPlants(World *world)
     int dandelionAmmount = rand() % average * DANDELION_MULTIPLIER;
     int guaranaAmmount = rand() % average * GUARANA_MULTIPLIER;
 
-    for(int i = 0; i < grassAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(grassAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Grass(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }
 
-    for(int i = 0; i < belladonaAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(belladonaAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Belladonna(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }
 
-    for(int i = 0; i < hogweedAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(hogweedAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new SosnowskyHogweed(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }    
 
-    for(int i = 0; i < dandelionAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(dandelionAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Dandelion(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }
     
-    for(int i = 0; i < guaranaAmmount - (rand() % average); ++i)
+    for(int i = 0; i < std::max(guaranaAmmount - (rand() % average),1); ++i)
     {
         newOrganism =  new Guarana(rand() % width, rand() % height);
-        world->pushOrganism(newOrganism);
+        pushOrganism(newOrganism);
     }
 }

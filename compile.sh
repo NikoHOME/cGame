@@ -1,0 +1,1 @@
+g++ -o cGame -I include  src/*.cpp src/animals/*.cpp src/plants/*.cpp -lncurses

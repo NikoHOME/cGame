@@ -1,44 +1,5 @@
-#include "plants.h"
-#include <vector>
-#include "world.h"
-#include "animals.h"
-
-
-
-
-void Dandelion::action()
-{
-
-    for(int i=0;i<3;++i) 
-    {
-        if(rand()%100 >= GROW_CHANCE)
-            continue;
-
-        basicMovementHandle();
-
-        basicCollisionHandle();
-    }
-}
-
-CollisionAction Guarana::collision()
-{
-    CollisionAction action;
-    action.realStrength = strength;
-    action.givesStrength = true;
-    action.givenStrength = 3;
-    
-
-    return action;
-}
-
-CollisionAction Belladonna::collision()
-{
-    CollisionAction action;
-    action.realStrength = 0;
-    action.killAfterDefeat = true;
-
-    return action;
-}
+#include "plants/hogweed.hpp"
+#include "animal.hpp"
 
 void SosnowskyHogweed::action()
 {
@@ -59,8 +20,18 @@ void SosnowskyHogweed::action()
             auto organism = dynamic_cast<Animal *>(targetOrganism);
             if(organism == nullptr)
                 continue;
-            //world->getOrganisms()[targetOrganism->getIndex()]->setIsDeadStatus(true);
-            world->getOrganismDisplay()[coordinate.x][coordinate.y] = nullptr;
+            Organism *killTarget = world->getOrganismDisplay()[coordinate.x][coordinate.y];
+            CollisionAction action = killTarget->collision();
+            if(!action.isImmortal)
+            {
+                Message message1;
+                message1.animal1 = getName();
+                message1.animal2 = killTarget->getName();
+                message1.message = getKillMessage();
+                getWorld()->getManager()->pushMessage(message1);
+
+                killTarget->die();
+            }
         }
     }
     int chance = rand()%100;
@@ -82,7 +53,7 @@ void SosnowskyHogweed::action()
 CollisionAction SosnowskyHogweed::collision()
 {
     CollisionAction action;
-    action.realStrength = 0;
+    action.realStrength = strength;
     action.killAfterDefeat = true;
 
     return action;

@@ -1,21 +1,25 @@
 #include <iostream>
-#include "world.h"
-#include "organism.h"
-#include "plant.h"
-#include "plants.h"
-#include "animal.h"
-#include "animals.h"
+#include "world.hpp"
+#include "organism.hpp"
+#include "plant.hpp"
+#include "plants.hpp"
+#include "animal.hpp"
+#include "animals.hpp"
+#include "manager.hpp"
+
 
 int main()
 {
-    World world(100,50);
+    Manager manager;
+    manager.initializeCurses();
+    manager.inputWorldSize();
+    manager.initializeMessageWindow();
 
-    world.initializeWindow();
-    world.draw();
+    
 
-    while(world.handleInput())
+    while(manager.handleInput())
     {
-        world.processInput();
+        manager.processInput();
     }
 
 
