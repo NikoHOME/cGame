@@ -8,5 +8,6 @@ Made for a university OOP project.
 
 Compile the project manually or with the provided script
 
-##Dependencies
+## Dependencies
+
 ncurses library
